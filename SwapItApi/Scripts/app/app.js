@@ -5,7 +5,8 @@
 var swapItApp = angular.module('swapItApp', ['ui.router']);
 
 
-swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', function ($stateProvider, $urlRouterProvider, $locationProvider) {
+swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider', function ($stateProvider, $urlRouterProvider, $locationProvider,$httpProvider) {
+    $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
     $urlRouterProvider.otherwise('/Login');
 
     $stateProvider.state('Login', {
@@ -29,10 +30,11 @@ swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', f
 }]);
 
 
-swapItApp.factory('LoginFactory', ['$http','$q',
+swapItApp.factory('LoginFactory', ['$http','$q','$localstorage',
     function($http,$q) {
         var login = function(loginData) {
-            
+            var deffer = $q.defer();
+            //$http.get()
         }
     }
 ]);
