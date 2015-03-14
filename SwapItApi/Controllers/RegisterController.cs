@@ -11,6 +11,9 @@ namespace SwapItApi.Controllers
         // GET: Register
         public ActionResult Index()
         {
+            if (Request.IsAjaxRequest())
+                return PartialView();
+
             return View();
         }
     }
