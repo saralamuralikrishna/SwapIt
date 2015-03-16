@@ -2,7 +2,7 @@
 /// <reference path="../angular-ui-router.js" />
 
 
-var swapItApp = angular.module('swapItApp', ['ui.router']);
+var swapItApp = angular.module('swapItApp', ['ui.router', 'ui.bootstrap']);
 
 swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider', function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
@@ -28,30 +28,66 @@ swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '
     });
 }]);
 
-swapItApp.controller('RegisterCtrl', ['$scope','accountFactory', function ($scope,accountFacotry) {
+swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory', function ($scope, accountFacotry) {
     $scope.RegisterData = {
+        FirstName: '',
+        LastName: '',
+        DateOfBirth: '',
+        Address: '',
+        HouseNumber: '',
+        PostCode: '',
         email: '',
         password: '',
         confirmPassword: ''
+
     };
+
+    $scope.applicationDate = {
+        minDate: null,
+        dateOptions: {
+            formatYear: 'yy',
+            startingDay: 1
+        },
+        maxDate: new Date(),
+        dt: new Date(),
+        formats: ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'],
+    }
+
+    $scope.applicationDate.format = $scope.applicationDate.formats[0];
 
     $scope.errorData = {
         isError: false,
         errorMessage: ''
     }
 
+    $scope.open = function ($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+
+        $scope.opened = true;
+    };
+
+
     $scope.register = function () {
         $scope.errorData.isError = false;
         $scope.errorData.errorMessage = '';
-        var promise = accountFacotry.registerUser($scope.RegisterData.email, $scope.RegisterData.password, $scope.RegisterData.confirmPassword);
+        var promise = accountFacotry.registerUser($scope.RegisterData.email,
+            $scope.RegisterData.password,
+            $scope.RegisterData.confirmPassword,
+            $scope.RegisterData.FirstName,
+            $scope.RegisterData.LastName,
+            $scope.RegisterData.Address,
+            $scope.applicationDate.dt,
+            $scope.RegisterData.PostCode,
+            $scope.RegisterData.HouseNumber);
         promise.then(function (payload, status, headers, config) {
-            
+
         }, function (errorPayload) {
             $scope.errorData.isError = true;
             $scope.errorData.errorMessage = errorPayload.Message;
             if (errorPayload.ModelState) {
                 var keys = Object.keys(errorPayload.ModelState);
-                for (var key=0;key< keys.length;key++) {
+                for (var key = 0; key < keys.length; key++) {
                     for (var len = 0; len < errorPayload.ModelState[keys[key]].length; len++) {
                         $scope.errorData.errorMessage += '\\n' + errorPayload.ModelState[keys[key]][len];
                     }
@@ -82,13 +118,19 @@ swapItApp.factory('accountFactory', ['$http', '$q',
             return deferred.promise;
         };
 
-        var registerUser = function (email, password, confirmPassword) {
+        var registerUser = function (email, password, confirmPassword, firstName, lastName, address, dateOfBirth, postCode, houseNumber) {
             var deferred = $q.defer();
             var loginData = {
                 grant_type: 'password',
                 Email: email,
                 Password: password,
-                ConfirmPassword: confirmPassword
+                ConfirmPassword: confirmPassword,
+                FirstName: firstName,
+                LastName: lastName,
+                Address: address,
+                DateOfBirth: dateOfBirth,
+                PostCode: postCode,
+                HouseNumber: houseNumber
             };
             var req = {
                 method: 'POST',
