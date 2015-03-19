@@ -16,5 +16,13 @@ namespace SwapItApi.Controllers
 
             return View();
         }
+
+        public ActionResult Success()
+        {
+            if (Request.IsAjaxRequest())
+                return PartialView();
+
+            return View();
+        }
     }
 }

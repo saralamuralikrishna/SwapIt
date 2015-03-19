@@ -1,6 +1,9 @@
 ﻿<div class="col-sm-4">
     <h3>Register</h3>
     <form ng-controller="RegisterCtrl">
+        <div class="validation-summary-errors" ng-show="errorData.isError">
+            <span class="glyphicon glyphicon-warning-sign">{{errorData.errorMessage}}</span>
+        </div>
         <div class="form-group">
             <label class="label">
                 First Name
@@ -49,9 +52,6 @@
         
         <div class="form-group">
             <button type="button" class="btn btn-default" ng-click="register()">Register</button>
-        </div>
-        <div class="field-validation-error" ng-show="errorData.isError">
-            <span class="glyphicon-warning-sign"></span>{{errorData.errorMessage}}
         </div>
     </form>
 </div>

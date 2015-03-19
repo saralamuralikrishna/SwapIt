@@ -336,7 +336,8 @@ namespace SwapItApi.Controllers
                 Address = model.Address, 
                 DateOfBirth = model.DateOfBirth,
                 PostCode = model.PostCode,
-                HouseNumber = model.HouseNumber
+                HouseNumber = model.HouseNumber,
+                EmailConfirmed = false
             };
 
             IdentityResult result = await UserManager.CreateAsync(user, model.Password);

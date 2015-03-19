@@ -16,6 +16,14 @@ swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '
         url: '/Register',
         templateUrl: '/Register/Index'
     });
+    $stateProvider.state('HomePage', {
+        url: '/Home',
+        templateUrl: '/Home/Main'
+    });
+    $stateProvider.state('RegistrationSuccess', {
+        url: '/RegistrationSucess',
+        templateUrl:'/Register/Success'
+    });
     $stateProvider.state('Help',
         {
             url: '/Help',
@@ -28,7 +36,7 @@ swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '
     });
 }]);
 
-swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory', function ($scope, accountFacotry) {
+swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory','$state', function ($scope, accountFactory, $state) {
     $scope.RegisterData = {
         FirstName: '',
         LastName: '',
@@ -71,7 +79,7 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory', function ($sco
     $scope.register = function () {
         $scope.errorData.isError = false;
         $scope.errorData.errorMessage = '';
-        var promise = accountFacotry.registerUser($scope.RegisterData.email,
+        var promise = accountFactory.registerUser($scope.RegisterData.email,
             $scope.RegisterData.password,
             $scope.RegisterData.confirmPassword,
             $scope.RegisterData.FirstName,
@@ -81,7 +89,7 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory', function ($sco
             $scope.RegisterData.PostCode,
             $scope.RegisterData.HouseNumber);
         promise.then(function (payload, status, headers, config) {
-
+            $state.go('RegistrationSuccess');
         }, function (errorPayload) {
             $scope.errorData.isError = true;
             $scope.errorData.errorMessage = errorPayload.Message;
@@ -93,11 +101,38 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory', function ($sco
                     }
                 }
             }
-            console.log(errorPayload);
         });
     }
 }]);
 
+swapItApp.controller('LoginCtrl', [
+    '$scope', 'accountFactory', '$state', function($scope,accountFactory, $state) {
+        $scope.loginData =
+        {
+            userName: '',
+            password: ''
+        }
+
+        $scope.errorData = {
+            isError: false,
+            errorMessage: ''
+        }
+
+        $scope.login = function () {
+            $scope.errorData.isError = false;
+            var promise = accountFactory.login($scope.loginData.userName, $scope.loginData.password);
+            promise.then(function (payLoad) {
+                localStorage.setItem('token', payLoad.access_token);
+                localStorage.setItem('userName', payLoad.userName);
+                localStorage.setItem('tokenType', payLoad.token_type);
+                $state.go('HomePage');
+            }, function(errorPayLoad) {
+                $scope.errorData.isError = true;
+                $scope.errorData.errorMessage = errorPayLoad;
+            });
+        }
+    }
+]);
 
 swapItApp.factory('accountFactory', ['$http', '$q',
     function ($http, $q) {
@@ -112,8 +147,8 @@ swapItApp.factory('accountFactory', ['$http', '$q',
                 method: 'POST',
                 url: "/Token",
                 withCredentials: true,
-                data: loginData
-            }
+                data: 'userName=' + userName + '&password=' + passWord + '&grant_type=password'
+        }
             $http(req).success(deferred.resolve).error(deferred.reject);
             return deferred.promise;
         };
