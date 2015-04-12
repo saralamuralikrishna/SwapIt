@@ -105,30 +105,54 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory','$state', funct
     }
 }]);
 
+swapItApp.service('navbarService', function() {
+    var navbarService = this;
+    navbarService.isLoggedIn = false;
+    navbarService.SetLoggedIn = function(val) {
+        navbarService.isLoggedIn = val;
+    };
+    navbarService.GetLoggedIn = function() {
+        return navbarService.isLoggedIn;
+    }
+});
+
+swapItApp.controller('NavbarCtrl', ['$scope', 'navbarService', function ($scope, navbarService) {
+    $scope.isLoggedIn = navbarService.GetLoggedIn();
+    $scope.$watch(function () { return navbarService.isLoggedIn; }, function (newVal, oldVal) {
+        if (typeof newVal !== 'undefined') {
+            $scope.isLoggedIn = navbarService.isLoggedIn;
+        }
+    });
+}]);
+
 swapItApp.controller('LoginCtrl', [
-    '$scope', 'accountFactory', '$state', function($scope,accountFactory, $state) {
+    '$scope', 'accountFactory', '$state', 'navbarService', function ($scope, accountFactory, $state, navbarService) {
         $scope.loginData =
         {
             userName: '',
             password: ''
         }
-
+        $scope.isBusyLogginIn = false;
         $scope.errorData = {
             isError: false,
             errorMessage: ''
         }
 
         $scope.login = function () {
+            $scope.isBusyLogginIn = true;
             $scope.errorData.isError = false;
             var promise = accountFactory.login($scope.loginData.userName, $scope.loginData.password);
             promise.then(function (payLoad) {
                 localStorage.setItem('token', payLoad.access_token);
                 localStorage.setItem('userName', payLoad.userName);
                 localStorage.setItem('tokenType', payLoad.token_type);
+                navbarService.SetLoggedIn(true);
                 $state.go('HomePage');
             }, function(errorPayLoad) {
                 $scope.errorData.isError = true;
                 $scope.errorData.errorMessage = errorPayLoad;
+            }).finally(function () {
+                $scope.isBusyLogginIn = false;
             });
         }
     }
