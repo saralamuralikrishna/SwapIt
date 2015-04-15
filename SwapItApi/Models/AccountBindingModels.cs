@@ -59,21 +59,6 @@ namespace SwapItApi.Models
         public string LastName { get; set; }
 
         [Required]
-        [Display(Name = "Address")]
-        [StringLength(150, ErrorMessage = "The {0} must be at least {2} characters long", MinimumLength = 5)]
-        public string Address { get; set; }
-
-        [Required]
-        [Display(Name = "House Number")]
-        [StringLength(10, ErrorMessage = "The {0} must be at least {2} characters long", MinimumLength = 1)]
-        public string HouseNumber { get; set; }
-
-        [Required]
-        [Display(Name = "Post Code")]
-        [StringLength(10, ErrorMessage = "The {0} must be at least {2} characters long", MinimumLength = 4)]
-        public string PostCode { get; set; }
-
-        [Required]
         [Display(Name = "Date of Birth")]
         [DataType(DataType.DateTime)]
         public DateTime DateOfBirth { get; set; }

@@ -3,17 +3,19 @@
     <div class="validation-summary-errors" ng-show="errorData.isError">
         <span class="glyphicon glyphicon-exclamation-sign">{{errorData.errorMessage}}</span>
     </div>
-    <form novalidate>
-        <div class="form-group">
+    <form novalidate name="loginform">
+        <div class="form-group" ng-class="{ 'has-error' : loginform.userName.$invalid && !loginform.userName.$pristine }">
             <label>Email</label>
-            <input class="form-control" type="email" required ng-model="loginData.userName" />
+            <input name="userName" class="form-control" type="email" required ng-model="loginData.userName" />
+            <p ng-show="loginform.userName.$invalid && !loginform.userName.$pristine" class="help-block">Please enter valid email...</p>
         </div>
         <div class="form-group">
             <label>Password</label>
-            <input class="form-control" type="password" ng-model="loginData.password" required />
+            <input class="form-control" type="password" name="password" ng-model="loginData.password" required />
+            <p ng-show="loginform.password.$invalid && !loginform.password.$pristine" class="help-block">Please enter password...</p>
         </div>
         <div class="form-group">
-            <button type="submit" class="btn btn-primary" ng-click="login()"><img src="~/Content/Images/loading.gif" ng-show="isBusyLogginIn==true" />Log In</button>
+            <button type="submit" class="btn btn-primary" ng-click="login()" ng-disabled="loginform.$invalid"><img src="~/Content/Images/loading.gif" ng-show="isBusyLogginIn==true" />Log In</button>
         </div>
     </form>
 </div>

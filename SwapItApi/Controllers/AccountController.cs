@@ -124,7 +124,7 @@ namespace SwapItApi.Controllers
 
             IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword,
                 model.NewPassword);
-            
+
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
@@ -257,9 +257,9 @@ namespace SwapItApi.Controllers
             if (hasRegistered)
             {
                 Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-                
-                 ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
-                    OAuthDefaults.AuthenticationType);
+
+                ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
+                   OAuthDefaults.AuthenticationType);
                 ClaimsIdentity cookieIdentity = await user.GenerateUserIdentityAsync(UserManager,
                     CookieAuthenticationDefaults.AuthenticationType);
 
@@ -317,6 +317,51 @@ namespace SwapItApi.Controllers
             return logins;
         }
 
+
+        [HttpGet]
+        [Route("ConfirmEmailPassword", Name = "ConfirmEmailPasswordRoute")]
+        public async Task<IHttpActionResult> ConfirmEmailPassword(string userId = "", string code = "")
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(code))
+            {
+                ModelState.AddModelError("", "User Id and Code are required");
+                return BadRequest(ModelState);
+            }
+
+            return Ok();
+
+        }
+        [HttpPost]
+        [Route("ConfirmEmail", Name = "ConfirmEmailRoute")]
+        public async Task<IHttpActionResult> ConfirmEmail(string userId = "", string code = "", string password = "")
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(code))
+            {
+                ModelState.AddModelError("", "User Id and Code are required");
+                return BadRequest(ModelState);
+            }
+
+            var user = await this.UserManager.FindAsync(userId, password);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("","Password entered is not correct");
+                return BadRequest(ModelState);
+            }
+
+            IdentityResult result = await this.UserManager.ConfirmEmailAsync(userId, code);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return GetErrorResult(result);
+        }
+
+
+
+
         // POST api/Account/Register
         [AllowAnonymous]
         [Route("Register")]
@@ -329,19 +374,20 @@ namespace SwapItApi.Controllers
 
             var user = new ApplicationUser
             {
-                UserName = model.Email, 
-                Email = model.Email, 
+                UserName = model.Email,
+                Email = model.Email,
                 FirstName = model.FirstName,
-                LastName = model.LastName, 
-                Address = model.Address, 
+                LastName = model.LastName,
                 DateOfBirth = model.DateOfBirth,
-                PostCode = model.PostCode,
-                HouseNumber = model.HouseNumber,
                 EmailConfirmed = false
             };
 
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
 
+            string code = await this.UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+            var callbackUrl = new Uri(Url.Link("ConfirmEmailPasswordRoute", new { userId = user.Id, code = code }));
+            await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+            Uri locationHeader = new Uri(Url.Link("GetUserById", new { id = user.Id }));
+            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
@@ -378,7 +424,7 @@ namespace SwapItApi.Controllers
             result = await UserManager.AddLoginAsync(user.Id, info.Login);
             if (!result.Succeeded)
             {
-                return GetErrorResult(result); 
+                return GetErrorResult(result);
             }
             return Ok();
         }

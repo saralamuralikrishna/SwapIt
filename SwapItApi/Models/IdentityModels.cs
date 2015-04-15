@@ -19,16 +19,7 @@ namespace SwapItApi.Models
         [MaxLength(20)]
         public string LastName { get; set; }
         public DateTime DateOfBirth { get; set; }
-        [MinLength(1)]
-        [MaxLength(150)]
-        public string Address { get; set; }
-        [MinLength(1)]
-        [MaxLength(10)]
-        public string HouseNumber { get; set; }
-        [MinLength(1)]
-        [MaxLength(7)]
-        public string PostCode { get; set; }
-
+       
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, string authenticationType)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType

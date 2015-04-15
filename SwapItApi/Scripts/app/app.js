@@ -40,10 +40,7 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory','$state', funct
     $scope.RegisterData = {
         FirstName: '',
         LastName: '',
-        DateOfBirth: '',
-        Address: '',
-        HouseNumber: '',
-        PostCode: '',
+        DateOfBirth: '01-January-1970',
         email: '',
         password: '',
         confirmPassword: ''
@@ -186,10 +183,7 @@ swapItApp.factory('accountFactory', ['$http', '$q',
                 ConfirmPassword: confirmPassword,
                 FirstName: firstName,
                 LastName: lastName,
-                Address: address,
                 DateOfBirth: dateOfBirth,
-                PostCode: postCode,
-                HouseNumber: houseNumber
             };
             var req = {
                 method: 'POST',
