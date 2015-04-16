@@ -12,6 +12,14 @@ swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '
         url: '/Login',
         templateUrl: '/Login/Index'
     });
+    $stateProvider.state('ConfirmEmail', {
+        url: '/ConfirmEmail',
+        templateUrl: '/ConfirmEmail/Index'
+    });
+    $stateProvider.state('ConfirmEmailSuccess', {
+        url: '/ConfirmEmail/Success',
+        templateUrl: '/ConfirmEmail/Success'
+    });
     $stateProvider.state('Register', {
         url: '/Register',
         templateUrl: '/Register/Index'
@@ -22,7 +30,7 @@ swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '
     });
     $stateProvider.state('RegistrationSuccess', {
         url: '/RegistrationSucess',
-        templateUrl:'/Register/Success'
+        templateUrl: '/Register/Success'
     });
     $stateProvider.state('Help',
         {
@@ -36,7 +44,58 @@ swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '
     });
 }]);
 
-swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory','$state', function ($scope, accountFactory, $state) {
+swapItApp.controller('ConfirmEmailCtrl', [
+    '$scope', 'accountFactory', '$state', '$location', function ($scope, accountFactory, $state, $location) {
+        $scope.errorData = {
+            isError: false,
+            errorMessage: ''
+        }
+        $scope.errorData.isError = false;
+        $scope.errorData.errorMessage = '';
+        $scope.isBusyConfirming = false;
+
+        $scope.ConfirmEmail = {
+            userId: '',
+            code: '',
+            password: '',
+            userEmail: ''
+        }
+        var params = $location.search();
+        if (params['userId']) {
+            $scope.ConfirmEmail.userId = params['userId'];
+        }
+
+        if (params['code']) {
+            $scope.ConfirmEmail.code = params['code'];
+        }
+
+        $scope.confirm = function () {
+            $scope.isBusyConfirming = false;
+            var promise = accountFactory.confirmEmail($scope.ConfirmEmail.userEmail,
+                $scope.ConfirmEmail.password, $scope.ConfirmEmail.userId, $scope.ConfirmEmail.code);
+
+            promise.then(function (payLoad) {
+                $state.go('ConfirmEmailSuccess');
+            }, function (errorPayload) {
+                $scope.errorData.isError = true;
+                $scope.errorData.errorMessage = errorPayload.Message;
+                if (errorPayload.ModelState) {
+                    var keys = Object.keys(errorPayload.ModelState);
+                    for (var key = 0; key < keys.length; key++) {
+                        for (var len = 0; len < errorPayload.ModelState[keys[key]].length; len++) {
+                            $scope.errorData.errorMessage += '\\n' + errorPayload.ModelState[keys[key]][len];
+                        }
+                    }
+                }
+            }
+            ).finally(function () {
+                $scope.isBusyConfirming = false;
+            });
+        }
+    }
+]);
+
+swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory', '$state', function ($scope, accountFactory, $state, $location) {
     $scope.RegisterData = {
         FirstName: '',
         LastName: '',
@@ -46,7 +105,7 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory','$state', funct
         confirmPassword: ''
 
     };
-
+    $scope.isBusyRegistering = false;
     $scope.applicationDate = {
         minDate: null,
         dateOptions: {
@@ -54,7 +113,7 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory','$state', funct
             startingDay: 1
         },
         maxDate: new Date(),
-        dt: new Date(),
+        dt: new Date('01-January-1970'),
         formats: ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'],
     }
 
@@ -76,15 +135,13 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory','$state', funct
     $scope.register = function () {
         $scope.errorData.isError = false;
         $scope.errorData.errorMessage = '';
+        $scope.isBusyRegistering = true;
         var promise = accountFactory.registerUser($scope.RegisterData.email,
             $scope.RegisterData.password,
             $scope.RegisterData.confirmPassword,
             $scope.RegisterData.FirstName,
             $scope.RegisterData.LastName,
-            $scope.RegisterData.Address,
-            $scope.applicationDate.dt,
-            $scope.RegisterData.PostCode,
-            $scope.RegisterData.HouseNumber);
+            $scope.applicationDate.dt);
         promise.then(function (payload, status, headers, config) {
             $state.go('RegistrationSuccess');
         }, function (errorPayload) {
@@ -98,17 +155,19 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory','$state', funct
                     }
                 }
             }
+        }).finally(function () {
+            $scope.isBusyRegistering = false;
         });
     }
 }]);
 
-swapItApp.service('navbarService', function() {
+swapItApp.service('navbarService', function () {
     var navbarService = this;
     navbarService.isLoggedIn = false;
-    navbarService.SetLoggedIn = function(val) {
+    navbarService.SetLoggedIn = function (val) {
         navbarService.isLoggedIn = val;
     };
-    navbarService.GetLoggedIn = function() {
+    navbarService.GetLoggedIn = function () {
         return navbarService.isLoggedIn;
     }
 });
@@ -145,7 +204,7 @@ swapItApp.controller('LoginCtrl', [
                 localStorage.setItem('tokenType', payLoad.token_type);
                 navbarService.SetLoggedIn(true);
                 $state.go('HomePage');
-            }, function(errorPayLoad) {
+            }, function (errorPayLoad) {
                 $scope.errorData.isError = true;
                 $scope.errorData.errorMessage = errorPayLoad;
             }).finally(function () {
@@ -155,49 +214,3 @@ swapItApp.controller('LoginCtrl', [
     }
 ]);
 
-swapItApp.factory('accountFactory', ['$http', '$q',
-    function ($http, $q) {
-        var login = function (userName, passWord) {
-            var deferred = $q.defer();
-            var loginData = {
-                grant_type: 'password',
-                username: userName,
-                password: passWord
-            };
-            var req = {
-                method: 'POST',
-                url: "/Token",
-                withCredentials: true,
-                data: 'userName=' + userName + '&password=' + passWord + '&grant_type=password'
-        }
-            $http(req).success(deferred.resolve).error(deferred.reject);
-            return deferred.promise;
-        };
-
-        var registerUser = function (email, password, confirmPassword, firstName, lastName, address, dateOfBirth, postCode, houseNumber) {
-            var deferred = $q.defer();
-            var loginData = {
-                grant_type: 'password',
-                Email: email,
-                Password: password,
-                ConfirmPassword: confirmPassword,
-                FirstName: firstName,
-                LastName: lastName,
-                DateOfBirth: dateOfBirth,
-            };
-            var req = {
-                method: 'POST',
-                url: "/api/Account/Register",
-                withCredentials: true,
-                data: loginData
-            }
-            $http(req).success(deferred.resolve).error(deferred.reject);
-            return deferred.promise;
-        }
-
-        return {
-            login: login,
-            registerUser: registerUser
-        }
-    }
-]);

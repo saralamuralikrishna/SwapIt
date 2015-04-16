@@ -10,6 +10,7 @@ namespace SwapItApi.Migrations
         public Configuration()
         {
             AutomaticMigrationsEnabled = true;
+            
         }
 
         protected override void Seed(SwapItApi.Models.ApplicationDbContext context)

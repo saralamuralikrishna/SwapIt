@@ -43,7 +43,7 @@
             <p ng-show="registerform.confirmPassword.$invalid && !registerform.confirmPassword.$pristine" class="help-block">Please enter confirm password...</p>
         </div>
         <div class="form-group">
-            <button type="button" class="btn btn-default" ng-disabled="registerform.$invalid" ng-click="register()">Register</button>
+            <button type="button" class="btn btn-default" ng-disabled="registerform.$invalid || isBusyRegistering==true" ng-click="register()"><img src="~/Content/Images/loading.gif" ng-show="isBusyRegistering==true" />Register</button>
         </div>
     </form>
 </div>

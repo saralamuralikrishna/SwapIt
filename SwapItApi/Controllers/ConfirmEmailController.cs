@@ -2,14 +2,13 @@
 
 namespace SwapItApi.Controllers
 {
-    public class RegisterController : Controller
+    public class ConfirmEmailController : Controller
     {
-        // GET: Register
+        // GET: ConfirmEmail
         public ActionResult Index()
         {
             if (Request.IsAjaxRequest())
                 return PartialView();
-
             return View();
         }
 
@@ -17,7 +16,6 @@ namespace SwapItApi.Controllers
         {
             if (Request.IsAjaxRequest())
                 return PartialView();
-
             return View();
         }
     }

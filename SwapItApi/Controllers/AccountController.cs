@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -318,22 +319,9 @@ namespace SwapItApi.Controllers
         }
 
 
-        [HttpGet]
-        [Route("ConfirmEmailPassword", Name = "ConfirmEmailPasswordRoute")]
-        public async Task<IHttpActionResult> ConfirmEmailPassword(string userId = "", string code = "")
-        {
-            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(code))
-            {
-                ModelState.AddModelError("", "User Id and Code are required");
-                return BadRequest(ModelState);
-            }
-
-            return Ok();
-
-        }
         [HttpPost]
         [Route("ConfirmEmail", Name = "ConfirmEmailRoute")]
-        public async Task<IHttpActionResult> ConfirmEmail(string userId = "", string code = "", string password = "")
+        public async Task<IHttpActionResult> ConfirmEmail(string userId = "", string code = "", string password = "", string userEmail="")
         {
             if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(code))
             {
@@ -341,11 +329,11 @@ namespace SwapItApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await this.UserManager.FindAsync(userId, password);
+            var user = await this.UserManager.FindAsync(userEmail, password);
 
             if (user == null)
             {
-                ModelState.AddModelError("","Password entered is not correct");
+                ModelState.AddModelError("","Email or Password entered is not correct");
                 return BadRequest(ModelState);
             }
 
@@ -383,17 +371,26 @@ namespace SwapItApi.Controllers
             };
 
 
-            string code = await this.UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-            var callbackUrl = new Uri(Url.Link("ConfirmEmailPasswordRoute", new { userId = user.Id, code = code }));
-            await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-            Uri locationHeader = new Uri(Url.Link("GetUserById", new { id = user.Id }));
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-            if (!result.Succeeded)
+            try
             {
-                return GetErrorResult(result);
-            }
+                IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+                if (!result.Succeeded)
+                {
+                    return GetErrorResult(result);
+                }
+                string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
 
-            return Ok();
+                //Url.Link("Default", new {userId = user.Id, code = code,});
+                var callbackUrl = new Uri(Url.Link("Default", new {userId = user.Id, code = code, controller = "ConfirmEmail" }));
+                await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error",ex);
+            }
+            
+            
         }
 
         // POST api/Account/RegisterExternal

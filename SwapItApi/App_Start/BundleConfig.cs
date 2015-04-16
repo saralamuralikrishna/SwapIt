@@ -16,7 +16,8 @@ namespace SwapItApi
                 "~/Scripts/angular-ui-router.js",
                 "~/Scripts/angular-ui/ui-bootstrap.js",
                 "~/Scripts/angular-ui/ui-bootstrap-tpls.js",
-                "~/Scripts/app/app.js"));
+                "~/Scripts/app/app.js")
+               .IncludeDirectory("~/Scripts/app/services","*.js",true));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at http://modernizr.com to pick only the tests you need.
