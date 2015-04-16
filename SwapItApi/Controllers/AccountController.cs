@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Routing;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
@@ -319,25 +320,38 @@ namespace SwapItApi.Controllers
         }
 
 
+        public class ConfirmEmailModle
+        {
+            public string userId { get; set; }
+            public string code { get; set; }
+            public string userEmail { get; set; }
+            public string userPassword { get; set; }
+        }
+
+
+        [AllowAnonymous]
         [HttpPost]
         [Route("ConfirmEmail", Name = "ConfirmEmailRoute")]
-        public async Task<IHttpActionResult> ConfirmEmail(string userId = "", string code = "", string password = "", string userEmail="")
+        public async Task<IHttpActionResult> ConfirmEmail([FromBody] ConfirmEmailModle confirmEmailModle)
         {
-            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(confirmEmailModle.userId) || string.IsNullOrWhiteSpace(confirmEmailModle.code))
             {
                 ModelState.AddModelError("", "User Id and Code are required");
                 return BadRequest(ModelState);
             }
 
-            var user = await this.UserManager.FindAsync(userEmail, password);
-
-            if (user == null)
+            if (string.IsNullOrWhiteSpace(confirmEmailModle.userEmail) || string.IsNullOrWhiteSpace(confirmEmailModle.userPassword))
             {
-                ModelState.AddModelError("","Email or Password entered is not correct");
+                ModelState.AddModelError("", "User Email and Password are required");
                 return BadRequest(ModelState);
             }
 
-            IdentityResult result = await this.UserManager.ConfirmEmailAsync(userId, code);
+            var user = await UserManager.FindAsync(confirmEmailModle.userEmail, confirmEmailModle.userPassword);
+            if (user == null || user.Id != confirmEmailModle.userId)
+            {
+                ModelState.AddModelError("","User is not known in system, please check email and password");
+            }
+            IdentityResult result = await this.UserManager.ConfirmEmailAsync(confirmEmailModle.userId, confirmEmailModle.code);
 
             if (result.Succeeded)
             {
@@ -378,6 +392,7 @@ namespace SwapItApi.Controllers
                 {
                     return GetErrorResult(result);
                 }
+                //string code = HttpContext.Current.Server.UrlEncode(await UserManager.GenerateEmailConfirmationTokenAsync(user.Id));
                 string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
 
                 //Url.Link("Default", new {userId = user.Id, code = code,});

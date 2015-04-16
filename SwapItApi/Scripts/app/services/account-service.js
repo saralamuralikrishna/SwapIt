@@ -17,25 +17,25 @@
             return deferred.promise;
         };
 
-        var confirmEmail = function (userEmail, password, userId, code) {
+        var confirmEmail = function (userId, code, userEmail, userPassword) {
             var deferred = $q.defer();
             var confirmData = {
                 userId: userId,
                 code: code,
-                password: password,
-                userEmail: userEmail
+                userEmail: userEmail,
+                userPassword: userPassword
             };
             var req = {
                 method: 'POST',
-                url: "/api/Account/ConfirmEmail",
-                withCredentials: true,
-                data: confirmData
-            }
+                url: '/api/Account/ConfirmEmail',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                data: $.param(confirmData)
+        }
             $http(req).success(deferred.resolve).error(deferred.reject);
             return deferred.promise;
         };
 
-        var registerUser = function (email, password, confirmPassword, firstName, lastName, address, dateOfBirth) {
+        var registerUser = function (email, password, confirmPassword, firstName, lastName, dateOfBirth) {
             var deferred = $q.defer();
             var loginData = {
                 grant_type: 'password',

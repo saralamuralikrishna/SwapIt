@@ -39,6 +39,7 @@ namespace SwapItApi.Providers
             if (!user.EmailConfirmed)
             {
                 context.SetError("Email id not confirmed", "you email is not confirmed please check your email and confirm.");
+                return;
             }
 
             ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(userManager,

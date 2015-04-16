@@ -15,7 +15,7 @@
             <p ng-show="confirmEmailForm.password.$invalid && !confirmEmailForm.password.$pristine" class="help-block">Please enter password...</p>
         </div>
         <div class="form-group">
-            <button type="button" class="btn btn-default" ng-disabled="confirmEmailForm.$invalid" ng-click="confirm()">
+            <button type="button" class="btn btn-default" ng-disabled="confirmEmailForm.$invalid || isBusyConfirming==true" ng-click="confirm()">
                 <img src="~/Content/Images/loading.gif" ng-show="isBusyConfirming==true" />Confirm
             </button>
         </div>

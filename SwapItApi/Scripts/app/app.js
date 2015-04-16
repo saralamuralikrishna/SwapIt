@@ -70,25 +70,24 @@ swapItApp.controller('ConfirmEmailCtrl', [
         }
 
         $scope.confirm = function () {
-            $scope.isBusyConfirming = false;
-            var promise = accountFactory.confirmEmail($scope.ConfirmEmail.userEmail,
-                $scope.ConfirmEmail.password, $scope.ConfirmEmail.userId, $scope.ConfirmEmail.code);
-
-            promise.then(function (payLoad) {
-                $state.go('ConfirmEmailSuccess');
-            }, function (errorPayload) {
-                $scope.errorData.isError = true;
-                $scope.errorData.errorMessage = errorPayload.Message;
-                if (errorPayload.ModelState) {
-                    var keys = Object.keys(errorPayload.ModelState);
-                    for (var key = 0; key < keys.length; key++) {
-                        for (var len = 0; len < errorPayload.ModelState[keys[key]].length; len++) {
-                            $scope.errorData.errorMessage += '\\n' + errorPayload.ModelState[keys[key]][len];
+            $scope.isBusyConfirming = true;
+            $scope.accessToken = '';
+            var promise = accountFactory.confirmEmail($scope.ConfirmEmail.userId, $scope.ConfirmEmail.code,$scope.ConfirmEmail.userEmail, $scope.ConfirmEmail.password);
+            promise.then(function() {
+                    $state.go('ConfirmEmailSuccess');
+                }, function(errorPayload) {
+                    $scope.errorData.isError = true;
+                    $scope.errorData.errorMessage = errorPayload.Message;
+                    if (errorPayload.ModelState) {
+                        var keys = Object.keys(errorPayload.ModelState);
+                        for (var key = 0; key < keys.length; key++) {
+                            for (var len = 0; len < errorPayload.ModelState[keys[key]].length; len++) {
+                                $scope.errorData.errorMessage += '\\n' + errorPayload.ModelState[keys[key]][len];
+                            }
                         }
                     }
                 }
-            }
-            ).finally(function () {
+            ).finally(function() {
                 $scope.isBusyConfirming = false;
             });
         }
@@ -113,7 +112,7 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory', '$state', func
             startingDay: 1
         },
         maxDate: new Date(),
-        dt: new Date('01-January-1970'),
+        dt: new Date(),
         formats: ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'],
     }
 
@@ -161,16 +160,7 @@ swapItApp.controller('RegisterCtrl', ['$scope', 'accountFactory', '$state', func
     }
 }]);
 
-swapItApp.service('navbarService', function () {
-    var navbarService = this;
-    navbarService.isLoggedIn = false;
-    navbarService.SetLoggedIn = function (val) {
-        navbarService.isLoggedIn = val;
-    };
-    navbarService.GetLoggedIn = function () {
-        return navbarService.isLoggedIn;
-    }
-});
+
 
 swapItApp.controller('NavbarCtrl', ['$scope', 'navbarService', function ($scope, navbarService) {
     $scope.isLoggedIn = navbarService.GetLoggedIn();
