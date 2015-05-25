@@ -41,6 +41,10 @@ namespace SwapItApi.Models
             return new ApplicationDbContext();
         }
 
-        public DbSet<Product> Products { get; set; } 
+        public DbSet<ProductType> ProductTypes { get; set; }
+        public DbSet<ProductSubType> ProductSubTypes { get; set; }
+        public DbSet<ProductCondition> ProductConditions { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<Image> Images { get; set; } 
     }
 }

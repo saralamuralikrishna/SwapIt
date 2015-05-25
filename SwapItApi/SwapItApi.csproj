@@ -212,6 +212,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ConfirmEmailController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ItemController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
@@ -239,6 +240,7 @@
     <Content Include="Areas\HelpPage\HelpPage.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\colorpicker.css" />
     <Content Include="Content\Images\loading.gif" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -278,7 +280,10 @@
     <Content Include="Scripts\angular.js" />
     <Content Include="Scripts\angular.min.js" />
     <Content Include="Scripts\app\app.js" />
+    <Content Include="Scripts\app\controllers\newItem.js" />
     <Content Include="Scripts\app\services\account-service.js" />
+    <Content Include="Scripts\app\services\authinterceptor-service.js" />
+    <Content Include="Scripts\app\services\item-serivce.js" />
     <Content Include="Scripts\app\services\navbar-service.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -301,6 +306,7 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
+    <Content Include="Scripts\colorpicker\bootstrap-colorpicker-module.min.js" />
     <Content Include="Scripts\errors.json" />
     <Content Include="Scripts\angular-touch.min.js.map" />
     <Content Include="Scripts\angular-sanitize.min.js.map" />
@@ -314,6 +320,8 @@
     <Content Include="Scripts\angular.min.js.map" />
     <None Include="Properties\PublishProfiles\Jodu-It.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="Scripts\file-uploader\ng-file-upload-shim.min.js" />
+    <Content Include="Scripts\file-uploader\ng-file-upload.min.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-dj.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-er.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-et.js" />
@@ -1091,6 +1099,8 @@
     <Content Include="Views\Home\Main.cshtml" />
     <Content Include="Views\ConfirmEmail\Index.cshtml" />
     <Content Include="Views\ConfirmEmail\Success.cshtml" />
+    <Content Include="Views\Item\Add.cshtml" />
+    <Content Include="Views\Shared\_Empty.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

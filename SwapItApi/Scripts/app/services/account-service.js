@@ -1,5 +1,11 @@
 ﻿(function () {
-    function accountFactory($http, $q) {
+    function accountFactory($http, $q, localStorageService) {
+        var authentication = {
+            isAuth: false,
+            userName: ""
+        };
+
+        var accountFactoryService = {};
         var login = function (userName, passWord) {
             var deferred = $q.defer();
             var loginData = {
@@ -13,8 +19,31 @@
                 withCredentials: true,
                 data: 'userName=' + userName + '&password=' + passWord + '&grant_type=password'
             }
-            $http(req).success(deferred.resolve).error(deferred.reject);
+            $http(req)
+                .success(function (response) {
+                    localStorageService.set('authorizationData',
+                        {
+                            token: response.access_token,
+                            userName: userName,
+                            tokenType: response.token_type
+                        });
+                    deferred.resolve(response);
+                })
+                .error(function (errorResponse, status) {
+                    logOut();
+                    deferred.reject(errorResponse);
+                });
             return deferred.promise;
+        };
+
+
+        var logOut = function () {
+
+            localStorageService.remove('authorizationData');
+
+            authentication.isAuth = false;
+            authentication.userName = "";
+
         };
 
         var confirmEmail = function (userId, code, userEmail, userPassword) {
@@ -28,9 +57,9 @@
             var req = {
                 method: 'POST',
                 url: '/api/Account/ConfirmEmail',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 data: $.param(confirmData)
-        }
+            }
             $http(req).success(deferred.resolve).error(deferred.reject);
             return deferred.promise;
         };
@@ -56,12 +85,24 @@
             return deferred.promise;
         }
 
-        return {
-            login: login,
-            registerUser: registerUser,
-            confirmEmail: confirmEmail
+        var fillAuthData = function () {
+
+            var authData = localStorageService.get('authorizationData');
+            if (authData) {
+                authentication.isAuth = true;
+                authentication.userName = authData.userName;
+            }
+
         }
+
+
+        accountFactoryService.login = login;
+        accountFactoryService.registerUser = registerUser;
+        accountFactoryService.confirmEmail = confirmEmail;
+        accountFactoryService.fillAuthData = fillAuthData;
+
+        return accountFactoryService;
     };
     angular.module('swapItApp')
-        .factory('accountFactory', ['$http', '$q', accountFactory]);
+        .factory('accountFactory', ['$http', '$q', 'localStorageService', accountFactory]);
 })();

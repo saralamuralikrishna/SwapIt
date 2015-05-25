@@ -7,6 +7,8 @@
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/angular")
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css"
+          rel="stylesheet" />
 </head>
 <body ng-app="swapItApp">
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -29,7 +31,7 @@
                         <a ui-sref="Register" ng-show="isLoggedIn==false">Register</a>
                     </li>
                     <li ng-show="isLoggedIn">
-                        <a ui-sref="Sell">Sell</a>
+                        <a ui-sref="NewItem">Sell</a>
                     </li>
                     <li ng-show="isLoggedIn">
                         <a ui-sref="About">Donate</a>

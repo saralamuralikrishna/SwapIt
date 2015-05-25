@@ -2,12 +2,15 @@
 /// <reference path="../angular-ui-router.js" />
 
 
-var swapItApp = angular.module('swapItApp', ['ui.router', 'ui.bootstrap']);
-
-swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider', function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
+var swapItApp = angular.module('swapItApp', ['ui.router', 'ui.bootstrap', 'LocalStorageModule', 'colorpicker.module', 'ngFileUpload']);
+//swapItApp.run(['authService', function (authService) {
+//    authService.fillAuthData();
+//}]);
+swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '$httpProvider',
+    function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
-    $urlRouterProvider.otherwise('/Login');
-
+    $urlRouterProvider.otherwise('/Item/Add');
+    //$httpProvider.interceptors.push('authService');
     $stateProvider.state('Login', {
         url: '/Login',
         templateUrl: '/Login/Index'
@@ -16,6 +19,11 @@ swapItApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', '
         url: '/ConfirmEmail',
         templateUrl: '/ConfirmEmail/Index'
     });
+    $stateProvider.state('NewItem', {
+        url: '/Item/Add',
+        templateUrl: '/Item/Add'
+    });
+
     $stateProvider.state('ConfirmEmailSuccess', {
         url: '/ConfirmEmail/Success',
         templateUrl: '/ConfirmEmail/Success'
@@ -189,10 +197,6 @@ swapItApp.controller('LoginCtrl', [
             $scope.errorData.isError = false;
             var promise = accountFactory.login($scope.loginData.userName, $scope.loginData.password);
             promise.then(function (payLoad) {
-                localStorage.setItem('token', payLoad.access_token);
-                localStorage.setItem('userName', payLoad.userName);
-                localStorage.setItem('tokenType', payLoad.token_type);
-                navbarService.SetLoggedIn(true);
                 $state.go('HomePage');
             }, function (errorPayLoad) {
                 $scope.errorData.isError = true;
